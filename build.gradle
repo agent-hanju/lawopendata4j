@@ -1,0 +1,99 @@
+plugins {
+  id 'java-library'
+  id 'maven-publish'
+}
+
+group = 'com.github.agent-hanju'
+version = '0.0.1'
+description = 'Java client library for Korean Law Open Data API (open.law.go.kr)'
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+  withSourcesJar()
+  withJavadocJar()
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compileOnly 'org.projectlombok:lombok:1.18.40'
+  annotationProcessor 'org.projectlombok:lombok:1.18.40'
+  implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+  implementation 'org.jsoup:jsoup:1.18.3'
+
+  api 'org.slf4j:slf4j-api:2.0.16'
+
+  testCompileOnly 'org.projectlombok:lombok:1.18.40'
+  testAnnotationProcessor 'org.projectlombok:lombok:1.18.40'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  testImplementation 'ch.qos.logback:logback-classic:1.5.16'
+  testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+  testImplementation 'org.assertj:assertj-core:3.24.2'
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed", "standardOut", "standardError"
+    showStandardStreams = true
+  }
+  systemProperty 'file.encoding', 'UTF-8'
+  jvmArgs '-Dfile.encoding=UTF-8', '-Dsun.jnu.encoding=UTF-8'
+}
+
+tasks.withType(JavaCompile).configureEach {
+  options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc).configureEach {
+  options.encoding = 'UTF-8'
+  options.charSet = 'UTF-8'
+  options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+
+      pom {
+        name = 'Law Open Data 4 Java'
+        description = 'Java client library for Korean Law Open Data API (open.law.go.kr)'
+        url = 'https://github.com/agent-hanju/lawopendata4j'
+
+        licenses {
+          license {
+            name = 'MIT License'
+            url = 'https://opensource.org/licenses/MIT'
+          }
+        }
+
+        developers {
+          developer {
+            id = 'agent-hanju'
+            name = 'hanju'
+            email = 'agent.hanju@gmail.com'
+          }
+        }
+
+        scm {
+          connection = 'scm:git:git://github.com/agent-hanju/lawopendata4j.git'
+          developerConnection = 'scm:git:ssh://github.com/agent-hanju/lawopendata4j.git'
+          url = 'https://github.com/agent-hanju/lawopendata4j'
+        }
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      name = 'local'
+      url = layout.buildDirectory.dir('repo')
+    }
+  }
+}

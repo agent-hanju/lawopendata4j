@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew compileJava:*)",
+      "Bash('/c/Program Files/MySQL/MySQL Shell 8.0/bin/mysqlsh.exe' --host=172.16.100.200 --port=13306 --user=root --password=root --database=lawcollector --sqlc -e \"SELECT raw_data FROM statute_lists LIMIT 1;\")",
+      "Bash(\"/c/Program Files/MySQL/MySQL Shell 8.0/bin/mysqlsh.exe\" --host=172.16.100.200 --port=13306 --user=root --password=root --database=lawcollector --sqlc -e \"SELECT raw_data FROM statute_lists WHERE raw_data LIKE ''%공동부령%'' AND raw_data NOT LIKE ''%\"\"공동부령정보\"\": \"\"\"\"%'' LIMIT 1;\")",
+      "Bash('/c/Program Files/MySQL/MySQL Shell 8.0/bin/mysqlsh.exe' --host=172.16.100.200 --port=13306 --user=root --password=root --database=lawcollector --sqlc -e \"SELECT raw_data FROM statute_contents LIMIT 1;\")",
+      "Bash(rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
