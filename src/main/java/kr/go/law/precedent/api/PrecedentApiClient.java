@@ -51,12 +51,19 @@ public class PrecedentApiClient extends BaseApiClient {
   }
 
   /**
-   * Fallback API 호출 (HTML 스크래핑)
+   * 판례 본문 조회 - Fallback API 직접 호출 (HTML 스크래핑)
+   *
+   * <pre>
+   * 사용 예시:
+   * {@code
+   * ContentApiResult result = client.getContentByFallback(608799);
+   * }
+   * </pre>
    *
    * @param precId 판례 일련번호
-   * @return ScrapApiResult
+   * @return ContentApiResult
    */
-  public ContentApiResult<PrecedentDto> callFallbackApi(Integer precId) {
+  public ContentApiResult<PrecedentDto> getContentByFallback(Integer precId) {
     HttpUrl url = HttpUrl.parse(FALLBACK_URL)
         .newBuilder()
         .addQueryParameter("precSeq", String.valueOf(precId))
@@ -175,13 +182,24 @@ public class PrecedentApiClient extends BaseApiClient {
    */
   public ContentApiResult<PrecedentDto> getContent(PrecedentContentRequest request) {
     try {
-      return executeContentApi(
+      ContentApiResult<PrecedentDto> result = executeContentApi(
           request,
           LawOpenDataProperties.CONTENT_PATH,
-          result -> parser.parseContent(result, request.getPrecedentSerialNumber()),
+          r -> parser.parseContent(r, request.getPrecedentSerialNumber()),
           "Precedent Content");
+
+      // 정상적이지 않은 응답이면 fallback으로 이어감
+      if (result.content().isEmpty()) {
+        log.info("Empty content from API, falling back to HTML scraping: precId={}",
+            request.getPrecedentSerialNumber());
+        return getContentByFallback(request.getPrecedentSerialNumber());
+      }
+
+      return result;
     } catch (Exception e) {
-      return callFallbackApi(request.getPrecedentSerialNumber());
+      log.info("API call failed, falling back to HTML scraping: precId={}, error={}",
+          request.getPrecedentSerialNumber(), e.getMessage());
+      return getContentByFallback(request.getPrecedentSerialNumber());
     }
   }
 }
