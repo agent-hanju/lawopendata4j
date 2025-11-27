@@ -564,7 +564,7 @@ public class StatuteParser {
     Map<String, String> unexpectedFieldMap = new HashMap<>();
     trackUnexpectedFields(
         joNode,
-        Set.of("조문번호", "조문가지번호", "조문제목", "조문내용", "조문여부", "항",
+        Set.of("조문번호", "조문가지번호", "조문키", "조문제목", "조문내용", "조문여부", "항",
             "조문제개정유형", "조문제개정일자문자열", "조문변경여부", "조문이동이전", "조문이동이후",
             "조문시행일자", "조문참고자료", "제명변경여부", "한글법령여부"),
         unexpectedFieldMap::put);
