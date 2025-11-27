@@ -31,18 +31,14 @@ import kr.go.law.statute.dto.Hang;
 import kr.go.law.statute.dto.Ho;
 import kr.go.law.statute.dto.Mok;
 import kr.go.law.statute.dto.StatuteDto;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 법령정보 API 응답 파서
- */
+/** 법령정보 API 응답 파서 */
 @Slf4j
+@RequiredArgsConstructor
 public class StatuteParser {
   private final ObjectMapper objectMapper;
-
-  public StatuteParser(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
 
   /**
    * API 응답에서 totalCnt를 파싱합니다.
@@ -80,11 +76,10 @@ public class StatuteParser {
     for (int i = 0; i < laws.size(); i++) {
       JsonNode lawData = laws.get(i);
 
-      String mstStr = getString(lawData, "법령일련번호");
-      if (mstStr == null || mstStr.trim().isEmpty()) {
+      Integer mst = getInt(lawData, "법령일련번호");
+      if (mst == null) {
         throw new IllegalArgumentException("Missing 법령일련번호");
       }
-      Integer mst = Integer.parseInt(mstStr);
 
       String lawName = getString(lawData, "법령명한글");
       if (lawName == null || lawName.trim().isEmpty()) {
@@ -228,7 +223,7 @@ public class StatuteParser {
 
     StatuteDto statute = parseStatute(lawNode);
 
-    final Map<Integer, ArticleDto> articleMap = new HashMap<>();
+    final List<ArticleDto> articles = new ArrayList<>();
     if (lawNode.has("조문") && lawNode.get("조문").has("조문단위")) {
       final ArrayNode joArray = normalizeToArray(lawNode.get("조문").get("조문단위"));
 
@@ -236,13 +231,13 @@ public class StatuteParser {
         try {
           final JsonNode joNode = joArray.get(i);
           final ArticleDto parsed = parseArticle(joNode, statute);
-          articleMap.put(parsed.getJoKey(), parsed);
+          articles.add(parsed);
         } catch (Exception e) {
           log.error("Failed to parse content jo for mst={}: {}", statute.getMst(), e.getMessage(), e);
         }
       }
     }
-    statute.setArticles(articleMap);
+    statute.setArticles(articles);
     return statute;
   }
 
@@ -672,19 +667,13 @@ public class StatuteParser {
     }
   }
 
-  // ====================================================================
-  // 유틸리티
-  // ====================================================================
-
   /**
-   * 조문번호와 조문가지번호로부터 joKey를 계산합니다.
-   *
-   * joKey = 조문번호 * 100 + (조문가지번호 ?? 0)
+   * 조문번호와 조문가지번호로부터 joKey를 계산(조문번호 * 100 + (조문가지번호 ?? 0))
    *
    * 예시:
-   * - 조문10 → joKey = 1000
-   * - 조문10의2 → joKey = 1002
-   * - 조문17 → joKey = 1700
+   * - 제10조 → joKey = 1000
+   * - 제10조의2 → joKey = 1002
+   * - 제17조 → joKey = 1700
    *
    * @param joNum   조문번호 (필수)
    * @param joBrNum 조문가지번호 (선택, null이면 0으로 처리)
@@ -699,7 +688,7 @@ public class StatuteParser {
   }
 
   /**
-   * "" | 단일 | 배열 → List 정규화 (커스텀 파서 버전)
+   * "" | 단일 | 배열 → List 정규화
    *
    * @param parent    부모 노드
    * @param fieldName 필드명
@@ -748,20 +737,20 @@ public class StatuteParser {
   /**
    * 미지의 필드 추적 (metadata 기록)
    *
-   * @param node             JSON 노드
-   * @param knownFields      알려진 필드 목록
-   * @param metadataRecorder metadata 기록 함수
+   * @param node        JSON 노드
+   * @param knownFields 알려진 필드 목록
+   * @param recorder    기록 함수
    */
   private void trackUnexpectedFields(
       JsonNode node,
       Set<String> knownFields,
-      BiConsumer<String, String> metadataRecorder) {
+      BiConsumer<String, String> recorder) {
     node.fields().forEachRemaining(entry -> {
       String fieldName = entry.getKey();
       if (!knownFields.contains(fieldName)) {
         try {
           String jsonValue = objectMapper.writeValueAsString(entry.getValue());
-          metadataRecorder.accept("$." + fieldName, jsonValue);
+          recorder.accept("$." + fieldName, jsonValue);
           log.warn("Unknown field detected: {} = {}", fieldName, jsonValue);
         } catch (JsonProcessingException e) {
           log.error("Failed to serialize unknown field: {}", fieldName, e);

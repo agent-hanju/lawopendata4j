@@ -14,23 +14,15 @@ import kr.go.law.statute.request.StatuteListRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 
-/**
- * 법령정보 Open API 클라이언트
- * <p>
- * 법령 목록, 연혁, 본문 조회 API를 호출합니다.
- * </p>
- */
+/** 법령 목록, 연혁, 본문 조회 API 호출 클라이언트 */
 @Slf4j
 public class StatuteApiClient extends BaseApiClient {
 
   private final StatuteParser parser;
 
   /**
-   * StatuteApiClient 생성자
-   * <p>
    * <strong>권장하지 않음:</strong> 직접 생성보다는 {@link kr.go.law.LawOpenDataClient}를
    * 사용하세요.
-   * </p>
    *
    * @param properties   API 설정 프로퍼티
    * @param objectMapper Jackson ObjectMapper
@@ -41,10 +33,8 @@ public class StatuteApiClient extends BaseApiClient {
     this.parser = new StatuteParser(objectMapper);
   }
 
-  // ===== Request Builder 기반 API 메서드 =====
-
   /**
-   * 법령 목록 조회 (Request 빌더 사용)
+   * 법령 목록 조회
    *
    * <pre>
    * 사용 예시:
@@ -75,7 +65,7 @@ public class StatuteApiClient extends BaseApiClient {
   }
 
   /**
-   * 조문 개정 이력 조회 (Request 빌더 사용)
+   * 조문 개정 이력 조회
    *
    * <pre>
    * 사용 예시:
@@ -102,7 +92,7 @@ public class StatuteApiClient extends BaseApiClient {
   }
 
   /**
-   * 법령 본문 조회 (Request 빌더 사용)
+   * 법령 본문 조회
    *
    * <pre>
    * 사용 예시:

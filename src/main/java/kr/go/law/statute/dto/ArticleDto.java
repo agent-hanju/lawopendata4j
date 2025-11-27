@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** 조문 DTO - ArticleEntity와 1:1 대응 */
+/** 조문 DTO */
 @Builder
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

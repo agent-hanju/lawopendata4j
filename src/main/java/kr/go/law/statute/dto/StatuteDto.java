@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** 법령 DTO - StatuteEntity와 1:1 대응 */
+/** 법령 DTO */
 @Builder
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -28,9 +28,7 @@ public class StatuteDto {
   private Integer ancYd;
   private Integer ancNo;
   private String enactmentType;
-  /** 소관부처코드 (콤마 구분 → List) */
   private List<String> orgCd;
-  /** 소관부처명 (콤마 구분 → List) */
   private List<String> org;
   private String knd;
   private String kndCd;
@@ -47,7 +45,7 @@ public class StatuteDto {
   private String amendmentReason;
   private List<Addendum> addenda;
   private List<Appendix> appendices;
-  private Map<Integer, ArticleDto> articles;
+  private List<ArticleDto> articles;
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, String> unexpectedFieldMap;
 }
