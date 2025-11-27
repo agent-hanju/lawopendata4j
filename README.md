@@ -1,41 +1,54 @@
 # lawopendata4j
 
-대한민국 법령정보 Open API (law.go.kr) Java 클라이언트 라이브러리
+[국가법령정보 공동활용](https://open.law.go.kr) Open API Java 클라이언트 라이브러리
 
 ## 개요
 
-`lawopendata4j`는 [법제처 법령정보 Open API](https://www.law.go.kr/LSO/openApi.do)를 Java로 쉽게 사용할 수 있도록 지원하는 클라이언트 라이브러리입니다.
+`lawopendata4j`는 법제처에서 제공하는 [국가법령정보 공동활용](https://open.law.go.kr) 사이트의 Open API를 Java로 쉽게 사용할 수 있도록 지원하는 클라이언트 라이브러리입니다.
 
 ### 지원 API
 
-| API | 설명 | Request 클래스 |
-|-----|------|---------------|
+| API               | 설명                     | Request 클래스                                                         |
+| ----------------- | ------------------------ | ---------------------------------------------------------------------- |
 | 법령 (eflaw, law) | 법령 목록/본문/연혁 조회 | `StatuteListRequest`, `StatuteContentRequest`, `StatuteHistoryRequest` |
-| 판례 (prec) | 판례 목록/본문 조회 | `PrecedentListRequest`, `PrecedentContentRequest` |
-| 헌재결정례 (detc) | 헌법재판소 결정례 조회 | `ConstitutionalListRequest`, `ConstitutionalContentRequest` |
-| 법령해석례 (expc) | 법령해석례 조회 | `InterpretationListRequest`, `InterpretationContentRequest` |
-| 행정심판례 (decc) | 행정심판례 조회 | `AdministrativeListRequest`, `AdministrativeContentRequest` |
-| 법령용어 (lstrm) | 법령용어 조회 | `TermListRequest`, `TermContentRequest`, `ArticleTermLinkRequest`, `TermRelationRequest` |
-| 위원회결정문 | 위원회결정문 조회 | (레거시 API) |
+| 판례 (prec)       | 판례 목록/본문 조회      | `PrecedentListRequest`, `PrecedentContentRequest`                      |
+
+> 헌재결정례, 법령해석례, 행정심판례, 법령용어 등은 아직 지원하지 않습니다.
 
 ## API 키 발급
 
-법령정보 Open API를 사용하려면 API 키(OC)가 필요합니다.
+**중요**: 국가법령정보 공동활용 Open API를 사용하려면 다음 조건을 모두 충족해야 합니다:
 
-1. [법제처 Open API 페이지](https://www.law.go.kr/LSO/openApi.do)에서 회원가입
-2. API 키 신청 후 발급받은 OC 코드 사용
+1. **API 키(OC) 발급**: [국가법령정보 공동활용](https://open.law.go.kr)에서 회원가입 후 API 키 신청
+2. **서버 IP 등록**: API 요청을 보낼 서버의 IP 주소를 사전에 등록해야 합니다. 등록되지 않은 IP에서의 요청은 차단됩니다.
+
+자세한 내용은 [국가법령정보 공동활용 안내](https://open.law.go.kr) 페이지를 참고하세요.
 
 ## 설치
 
 ### Gradle
 
 ```groovy
-implementation 'com.github.agent-hanju:lawopendata4j:0.0.1'
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.agent-hanju:lawopendata4j:0.0.1'
+}
 ```
 
 ### Maven
 
 ```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
 <dependency>
     <groupId>com.github.agent-hanju</groupId>
     <artifactId>lawopendata4j</artifactId>
@@ -43,7 +56,21 @@ implementation 'com.github.agent-hanju:lawopendata4j:0.0.1'
 </dependency>
 ```
 
-## 사용법
+## 클라이언트 설정
+
+### 설정 옵션
+
+`LawOpenDataProperties`를 통해 다음 옵션을 설정할 수 있습니다:
+
+| 옵션                | 타입     | 기본값 | 설명                     |
+| ------------------- | -------- | ------ | ------------------------ |
+| `oc`                | String   | -      | **필수**. API 키         |
+| `connectionTimeout` | Duration | 10초   | 서버 연결 타임아웃       |
+| `readTimeout`       | Duration | 30초   | 응답 읽기 타임아웃       |
+| `maxRetries`        | int      | 3      | 요청 실패 시 재시도 횟수 |
+| `retryDelay`        | Duration | 1초    | 재시도 간 대기 시간      |
+| `maxConnection`     | int      | 5      | 커넥션 풀 최대 연결 수   |
+| `keepAliveDuration` | Duration | 5분    | 유휴 연결 유지 시간      |
 
 ### 기본 사용법
 
@@ -51,12 +78,29 @@ implementation 'com.github.agent-hanju:lawopendata4j:0.0.1'
 import kr.go.law.LawOpenDataClient;
 import kr.go.law.config.LawOpenDataProperties;
 
-// Properties 생성
+// 기본 설정으로 클라이언트 생성
 LawOpenDataProperties properties = LawOpenDataProperties.builder()
-    .apiKey("YOUR_API_KEY")
+    .oc("YOUR_API_KEY")
     .build();
 
-// 클라이언트 생성
+LawOpenDataClient client = new LawOpenDataClient(properties);
+```
+
+### 커스텀 설정
+
+```java
+import java.time.Duration;
+
+LawOpenDataProperties properties = LawOpenDataProperties.builder()
+    .oc("YOUR_API_KEY")
+    .connectionTimeout(Duration.ofSeconds(5))   // 연결 타임아웃 5초
+    .readTimeout(Duration.ofSeconds(60))        // 읽기 타임아웃 60초
+    .maxRetries(5)                              // 최대 5회 재시도
+    .retryDelay(Duration.ofMillis(500))         // 재시도 간 0.5초 대기
+    .maxConnection(10)                          // 최대 10개 연결
+    .keepAliveDuration(Duration.ofMinutes(10))  // 유휴 연결 10분 유지
+    .build();
+
 LawOpenDataClient client = new LawOpenDataClient(properties);
 ```
 
@@ -67,7 +111,13 @@ LawOpenDataClient client = new LawOpenDataClient(properties);
 ```yaml
 law:
   opendata:
-    api-key: ${LAW_API_KEY:your-api-key-here}
+    oc: ${LAW_API_KEY:your-api-key-here}
+    connection-timeout: 10s
+    read-timeout: 30s
+    max-retries: 3
+    retry-delay: 1s
+    max-connection: 5
+    keep-alive-duration: 5m
 ```
 
 #### 2. Configuration 클래스 작성
@@ -122,29 +172,6 @@ public class LawService {
 }
 ```
 
-#### 4. 컨트롤러에서 사용
-
-```java
-import kr.go.law.common.response.ListApiResult;
-import kr.go.law.statute.dto.StatuteDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/law")
-@RequiredArgsConstructor
-public class LawController {
-
-    private final LawService lawService;
-
-    @GetMapping("/statutes")
-    public ListApiResult<StatuteDto> searchStatutes(
-        @RequestParam String query) {
-        return lawService.searchStatutes(query);
-    }
-}
-```
-
 ### 일반 Java 프로젝트에서 사용하기
 
 ```java
@@ -157,7 +184,7 @@ public class LawSearchExample {
     public static void main(String[] args) {
         // 클라이언트 생성
         LawOpenDataProperties properties = LawOpenDataProperties.builder()
-            .apiKey("YOUR_API_KEY")
+            .oc("YOUR_API_KEY")
             .build();
 
         LawOpenDataClient client = new LawOpenDataClient(properties);
@@ -206,28 +233,28 @@ String rawJson = result.rawData();  // 원본 JSON 데이터
 
 #### StatuteListRequest 파라미터
 
-| 파라미터 | 타입 | API 파라미터 | 설명 |
-|----------|------|--------------|------|
-| `page` | Integer | page | 페이지 번호 (기본값: 1) |
-| `display` | Integer | display | 페이지당 표시 건수 (기본값: 20, 최대: 100) |
-| `sort` | StatuteSortOption | sort | 정렬 옵션 |
-| `query` | String | query | 법령명 검색어 |
-| `promulgationDateFrom` | Integer | ancYd | 공포일 시작 (YYYYMMDD) |
-| `promulgationDateTo` | Integer | ancYd | 공포일 종료 (YYYYMMDD) |
-| `effectiveDateFrom` | Integer | efYd | 시행일 시작 (YYYYMMDD) |
-| `effectiveDateTo` | Integer | efYd | 시행일 종료 (YYYYMMDD) |
-| `lawId` | Integer | LID | 법령ID (6자리, 자동 zero-padding) |
-| `statuses` | List<StatuteStatus> | nw | 법령 상태 (CURRENT/HISTORY/SCHEDULED) |
-| `organizationCode` | Integer | org | 소관부처코드 (7자리, 자동 zero-padding) |
-| `kindCode` | String | knd | 법령종류코드 (A0101=헌법, A0102=법률 등) |
+| 파라미터               | 타입                | API 파라미터 | 설명                                       |
+| ---------------------- | ------------------- | ------------ | ------------------------------------------ |
+| `page`                 | Integer             | page         | 페이지 번호 (기본값: 1)                    |
+| `display`              | Integer             | display      | 페이지당 표시 건수 (기본값: 20, 최대: 100) |
+| `sort`                 | StatuteSortOption   | sort         | 정렬 옵션                                  |
+| `query`                | String              | query        | 법령명 검색어                              |
+| `promulgationDateFrom` | Integer             | ancYd        | 공포일 시작 (YYYYMMDD)                     |
+| `promulgationDateTo`   | Integer             | ancYd        | 공포일 종료 (YYYYMMDD)                     |
+| `effectiveDateFrom`    | Integer             | efYd         | 시행일 시작 (YYYYMMDD)                     |
+| `effectiveDateTo`      | Integer             | efYd         | 시행일 종료 (YYYYMMDD)                     |
+| `lawId`                | Integer             | LID          | 법령ID (6자리, 자동 zero-padding)          |
+| `statuses`             | List<StatuteStatus> | nw           | 법령 상태 (CURRENT/HISTORY/SCHEDULED)      |
+| `organizationCode`     | Integer             | org          | 소관부처코드 (7자리, 자동 zero-padding)    |
+| `kindCode`             | String              | knd          | 법령종류코드 (A0101=헌법, A0102=법률 등)   |
 
 #### StatuteSortOption
 
-| 옵션 | 설명 |
-|------|------|
-| `LAW_NAME_ASC` / `LAW_NAME_DESC` | 법령명 오름차순/내림차순 |
+| 옵션                                               | 설명                     |
+| -------------------------------------------------- | ------------------------ |
+| `LAW_NAME_ASC` / `LAW_NAME_DESC`                   | 법령명 오름차순/내림차순 |
 | `PROMULGATION_DATE_ASC` / `PROMULGATION_DATE_DESC` | 공포일 오름차순/내림차순 |
-| `EFFECTIVE_DATE_ASC` / `EFFECTIVE_DATE_DESC` | 시행일 오름차순/내림차순 |
+| `EFFECTIVE_DATE_ASC` / `EFFECTIVE_DATE_DESC`       | 시행일 오름차순/내림차순 |
 
 ### 법령 본문 조회
 
@@ -276,21 +303,21 @@ PrecedentApiClient.ListApiResult result = client.precedent().search(request);
 
 #### PrecedentListRequest 파라미터
 
-| 파라미터 | 타입 | API 파라미터 | 설명 |
-|----------|------|--------------|------|
-| `page` | Integer | page | 페이지 번호 (기본값: 1) |
-| `display` | Integer | display | 페이지당 표시 건수 (기본값: 20, 최대: 100) |
-| `sort` | PrecedentSortOption | sort | 정렬 옵션 |
-| `query` | String | query | 검색어 |
-| `searchScope` | SearchScope | search | 검색 범위 (CASE_NAME/CONTENT) |
-| `decisionDateFrom` | Integer | prncYd | 선고일 시작 (YYYYMMDD) |
-| `decisionDateTo` | Integer | prncYd | 선고일 종료 (YYYYMMDD) |
-| `decisionDate` | Integer | date | 특정 선고일 (YYYYMMDD) |
-| `courtType` | CourtType | org | 법원 종류 (SUPREME_COURT/LOWER_COURT) |
-| `courtName` | String | curt | 법원명 |
-| `caseNumber` | String | nb | 사건번호 |
-| `referenceLaw` | String | JO | 참조법령명 |
-| `dataSource` | String | datSrcNm | 데이터출처명 |
+| 파라미터           | 타입                | API 파라미터 | 설명                                       |
+| ------------------ | ------------------- | ------------ | ------------------------------------------ |
+| `page`             | Integer             | page         | 페이지 번호 (기본값: 1)                    |
+| `display`          | Integer             | display      | 페이지당 표시 건수 (기본값: 20, 최대: 100) |
+| `sort`             | PrecedentSortOption | sort         | 정렬 옵션                                  |
+| `query`            | String              | query        | 검색어                                     |
+| `searchScope`      | SearchScope         | search       | 검색 범위 (CASE_NAME/CONTENT)              |
+| `decisionDateFrom` | Integer             | prncYd       | 선고일 시작 (YYYYMMDD)                     |
+| `decisionDateTo`   | Integer             | prncYd       | 선고일 종료 (YYYYMMDD)                     |
+| `decisionDate`     | Integer             | date         | 특정 선고일 (YYYYMMDD)                     |
+| `courtType`        | CourtType           | org          | 법원 종류 (SUPREME_COURT/LOWER_COURT)      |
+| `courtName`        | String              | curt         | 법원명                                     |
+| `caseNumber`       | String              | nb           | 사건번호                                   |
+| `referenceLaw`     | String              | JO           | 참조법령명                                 |
+| `dataSource`       | String              | datSrcNm     | 데이터출처명                               |
 
 ### 판례 본문 조회
 
@@ -301,148 +328,6 @@ PrecedentContentRequest request = PrecedentContentRequest.builder()
 
 PrecedentApiClient.ContentApiResult result = client.precedent().getContent(request);
 ```
-
----
-
-## 헌재결정례 API (Constitutional)
-
-### 헌재결정례 목록 조회
-
-```java
-ConstitutionalListRequest request = ConstitutionalListRequest.builder()
-    .page(1)
-    .display(50)
-    .sort(ConstitutionalSortOption.DECISION_DATE_DESC)
-    .query("위헌")
-    .decisionDateFrom(20240101)
-    .build();
-
-ConstitutionalApiClient.ListApiResult result = client.constitutional().search(request);
-```
-
-### 헌재결정례 본문 조회
-
-```java
-ConstitutionalContentRequest request = ConstitutionalContentRequest.builder()
-    .id(12345)  // 필수
-    .build();
-
-ConstitutionalApiClient.ContentApiResult result = client.constitutional().getContent(request);
-```
-
----
-
-## 법령해석례 API (Interpretation)
-
-### 법령해석례 목록 조회
-
-```java
-InterpretationListRequest request = InterpretationListRequest.builder()
-    .page(1)
-    .display(50)
-    .sort(InterpretationSortOption.INTERPRETATION_DATE_DESC)
-    .query("행정절차")
-    .build();
-
-InterpretationApiClient.ListApiResult result = client.interpretation().search(request);
-```
-
-### 법령해석례 본문 조회
-
-```java
-InterpretationContentRequest request = InterpretationContentRequest.builder()
-    .id(12345)  // 필수
-    .build();
-
-InterpretationApiClient.ContentApiResult result = client.interpretation().getContent(request);
-```
-
----
-
-## 행정심판례 API (Administrative)
-
-### 행정심판례 목록 조회
-
-```java
-AdministrativeListRequest request = AdministrativeListRequest.builder()
-    .page(1)
-    .display(50)
-    .sort(AdministrativeSortOption.ADJUDICATION_DATE_DESC)
-    .query("취소")
-    .build();
-
-AdministrativeApiClient.ListApiResult result = client.administrative().search(request);
-```
-
-### 행정심판례 본문 조회
-
-```java
-AdministrativeContentRequest request = AdministrativeContentRequest.builder()
-    .id(12345)  // 필수
-    .build();
-
-AdministrativeApiClient.ContentApiResult result = client.administrative().getContent(request);
-```
-
----
-
-## 법령용어 API (Term)
-
-### 법령용어 목록 조회
-
-```java
-TermListRequest request = TermListRequest.builder()
-    .page(1)
-    .display(100)
-    .sort(TermSortOption.RELEVANCE_DESC)
-    .query("청원")
-    .build();
-
-TermApiClient.ListApiResult result = client.term().search(request);
-```
-
-### 법령용어 본문 조회
-
-```java
-TermContentRequest request = TermContentRequest.builder()
-    .query("청원")  // 필수
-    .termSerialNumbers(List.of("12345", "67890"))  // 선택
-    .build();
-
-TermApiClient.ContentApiResult result = client.term().getContent(request);
-```
-
-### 조문-법령용어 연계 조회
-
-```java
-ArticleTermLinkRequest request = ArticleTermLinkRequest.builder()
-    .lawId(1233)
-    .articleNumber(400)  // 제4조 → 000400
-    .build();
-
-TermApiClient.ArticleLinkApiResult result = client.term().getArticleTermLink(request);
-```
-
-### 법령용어-일상용어 관계 조회
-
-```java
-TermRelationRequest request = TermRelationRequest.builder()
-    .query("청원")
-    .relationType(TermRelationType.SYNONYM)  // 동의어
-    .build();
-
-TermApiClient.RelationApiResult result = client.term().getTermRelation(request);
-```
-
-#### TermRelationType
-
-| 옵션 | 코드 | 설명 |
-|------|------|------|
-| `SYNONYM` | 140301 | 동의어 |
-| `ANTONYM` | 140302 | 반의어 |
-| `HYPERNYM` | 140303 | 상위어 |
-| `HYPONYM` | 140304 | 하위어 |
-| `RELATED` | 140305 | 연관어 |
 
 ---
 
@@ -482,7 +367,7 @@ StatuteDto {
   amendmentReason: String           // 제개정 이유            ← 제개정이유.제개정이유내용 (Content only)
   addenda: List<Addendum>           // 부칙 목록              ← 부칙.부칙단위 (Content only)
   appendices: List<Appendix>        // 별표 목록              ← 별표.별표단위 (Content only)
-  articles: Map<Integer, ArticleDto> // 조문 (joKey → ArticleDto)
+  articles: List<ArticleDto>        // 조문 목록
 }
 ```
 
@@ -732,5 +617,5 @@ record ContentApiResult(
 
 ## 참고
 
-- [법제처 Open API 안내](https://www.law.go.kr/LSO/openApi.do)
-- [법제처 Open API 명세](https://www.law.go.kr/LSO/openApiGuide.do)
+- [국가법령정보 공동활용](https://open.law.go.kr)
+- [법제처 법령정보 Open API 안내](https://www.law.go.kr/LSO/openApi.do)
