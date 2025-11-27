@@ -243,7 +243,7 @@ String rawJson = result.rawData();  // 원본 JSON 데이터
 | `promulgationDateTo`   | Integer             | ancYd        | 공포일 종료 (YYYYMMDD)                     |
 | `effectiveDateFrom`    | Integer             | efYd         | 시행일 시작 (YYYYMMDD)                     |
 | `effectiveDateTo`      | Integer             | efYd         | 시행일 종료 (YYYYMMDD)                     |
-| `lawId`                | Integer             | LID          | 법령ID (6자리, 자동 zero-padding)          |
+| `lid`                  | Integer             | LID          | 법령ID (6자리, 자동 zero-padding)          |
 | `statuses`             | List<StatuteStatus> | nw           | 법령 상태 (CURRENT/HISTORY/SCHEDULED)      |
 | `organizationCode`     | Integer             | org          | 소관부처코드 (7자리, 자동 zero-padding)    |
 | `kindCode`             | String              | knd          | 법령종류코드 (A0101=헌법, A0102=법률 등)   |
@@ -260,7 +260,7 @@ String rawJson = result.rawData();  // 원본 JSON 데이터
 
 ```java
 StatuteContentRequest request = StatuteContentRequest.builder()
-    .statuteSerialNumber(253527)  // 법령일련번호 (필수)
+    .mst(253527)  // 법령일련번호 (필수)
     .build();
 
 StatuteApiClient.ContentApiResult result = client.statute().getContent(request, null);
@@ -271,7 +271,7 @@ Optional<StatuteDto> statute = result.statute();
 
 ```java
 StatuteHistoryRequest request = StatuteHistoryRequest.builder()
-    .lawId(2132)
+    .id(2132)
     .revisionDate(20240101)
     .page(1)
     .build();
@@ -315,8 +315,8 @@ PrecedentApiClient.ListApiResult result = client.precedent().search(request);
 | `decisionDate`     | Integer             | date         | 특정 선고일 (YYYYMMDD)                     |
 | `courtType`        | CourtType           | org          | 법원 종류 (SUPREME_COURT/LOWER_COURT)      |
 | `courtName`        | String              | curt         | 법원명                                     |
-| `caseNumber`       | String              | nb           | 사건번호                                   |
-| `referenceLaw`     | String              | JO           | 참조법령명                                 |
+| `nb`               | String              | nb           | 사건번호                                   |
+| `refJo`            | String              | JO           | 참조법령명                                 |
 | `dataSource`       | String              | datSrcNm     | 데이터출처명                               |
 
 ### 판례 본문 조회

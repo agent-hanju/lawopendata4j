@@ -116,7 +116,7 @@ public class PrecedentListRequest implements PageableRequest {
    * 예: "2024다12345"
    * </p>
    */
-  private String caseNumber;
+  private String nb;
 
   /**
    * 참조법령명
@@ -124,7 +124,7 @@ public class PrecedentListRequest implements PageableRequest {
    * API 파라미터: JO
    * </p>
    */
-  private String referenceLaw;
+  private String refJo;
 
   /**
    * 사전식 검색 (ga, na, da 등)
@@ -167,11 +167,11 @@ public class PrecedentListRequest implements PageableRequest {
     if (searchScope != null) {
       params.put("search", searchScope.getValue());
     }
-    if (caseNumber != null && !caseNumber.isBlank()) {
-      params.put("nb", caseNumber);
+    if (nb != null && !nb.isBlank()) {
+      params.put("nb", nb);
     }
-    if (referenceLaw != null && !referenceLaw.isBlank()) {
-      params.put("JO", referenceLaw);
+    if (refJo != null && !refJo.isBlank()) {
+      params.put("JO", refJo);
     }
     if (dictionarySearch != null && !dictionarySearch.isBlank()) {
       params.put("gana", dictionarySearch);

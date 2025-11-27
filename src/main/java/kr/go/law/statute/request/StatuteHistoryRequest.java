@@ -23,8 +23,8 @@ import lombok.Getter;
  *
  * // 특정 법령의 특정 조문 개정 이력 조회
  * StatuteHistoryRequest request = StatuteHistoryRequest.builder()
- *     .lawId(2132)
- *     .articleNumber(400) // 제4조 → 000400
+ *     .id(2132)
+ *     .jo(400) // 제4조 → 000400
  *     .build();
  *
  * // 기간 범위로 조회
@@ -89,7 +89,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * API 파라미터: ID
    * </p>
    */
-  private Integer lawId;
+  private Integer id;
 
   /**
    * 조문번호 (제N조 → N*100, 제N조의M → N*100+M)
@@ -100,7 +100,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * 예: 400 → "000400" (제4조), 202 → "000202" (제2조의2)
    * </p>
    */
-  private Integer articleNumber;
+  private Integer jo;
 
   /**
    * 소관부처코드 (7자리, 예: 1371000)
@@ -108,7 +108,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * API 파라미터: org
    * </p>
    */
-  private Integer organizationCode;
+  private Integer org;
 
   @Override
   public String getTarget() {
@@ -141,18 +141,18 @@ public class StatuteHistoryRequest implements PageableRequest {
     }
 
     // 법령ID (6자리 zero-padding)
-    if (lawId != null) {
-      params.put("ID", String.format("%06d", lawId));
+    if (id != null) {
+      params.put("ID", String.format("%06d", id));
     }
 
     // 조문번호 (6자리 zero-padding)
-    if (articleNumber != null) {
-      params.put("JO", String.format("%06d", articleNumber));
+    if (jo != null) {
+      params.put("JO", String.format("%06d", jo));
     }
 
     // 소관부처코드 (7자리 zero-padding)
-    if (organizationCode != null) {
-      params.put("org", String.format("%07d", organizationCode));
+    if (org != null) {
+      params.put("org", String.format("%07d", org));
     }
 
     return params;

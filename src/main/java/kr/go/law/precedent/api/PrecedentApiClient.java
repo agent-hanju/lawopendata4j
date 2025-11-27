@@ -95,21 +95,21 @@ public class PrecedentApiClient extends BaseApiClient {
       ContentApiResult<PrecedentDto> result = executeContentApi(
           request,
           LawOpenDataProperties.CONTENT_PATH,
-          r -> parser.parseContent(r, request.getPrecedentSerialNumber()),
+          r -> parser.parseContent(r, request.getId()),
           "Precedent Content");
 
       // 정상적이지 않은 응답이면 fallback으로 이어감
       if (result.content().isEmpty()) {
         log.info("Empty content from API, falling back to HTML scraping: precId={}",
-            request.getPrecedentSerialNumber());
-        return getContentByFallback(request.getPrecedentSerialNumber());
+            request.getId());
+        return getContentByFallback(request.getId());
       }
 
       return result;
     } catch (Exception e) {
       log.info("API call failed, falling back to HTML scraping: precId={}, error={}",
-          request.getPrecedentSerialNumber(), e.getMessage());
-      return getContentByFallback(request.getPrecedentSerialNumber());
+          request.getId(), e.getMessage());
+      return getContentByFallback(request.getId());
     }
   }
 

@@ -114,7 +114,7 @@ public class StatuteListRequest implements PageableRequest {
    * API 파라미터: LID
    * </p>
    */
-  private Integer lawId;
+  private Integer lid;
 
   /**
    * 법령 상태 목록 (현행/연혁/시행예정)
@@ -239,8 +239,8 @@ public class StatuteListRequest implements PageableRequest {
     }
 
     // 법령ID (6자리 zero-padding)
-    if (lawId != null) {
-      params.put("LID", String.format("%06d", lawId));
+    if (lid != null) {
+      params.put("LID", String.format("%06d", lid));
     }
 
     // 법령 상태 (콤마 구분)

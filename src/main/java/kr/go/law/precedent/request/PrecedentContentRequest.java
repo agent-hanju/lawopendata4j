@@ -17,7 +17,7 @@ import lombok.Getter;
  * 사용 예시:
  * {@code
  * PrecedentContentRequest request = PrecedentContentRequest.builder()
- *     .precedentSerialNumber(608799)
+ *     .id(608799)
  *     .build();
  * }
  * </pre>
@@ -33,13 +33,13 @@ public class PrecedentContentRequest implements BaseRequest {
      * <p>API 파라미터: ID</p>
      * <p>판례 목록 조회 응답의 '판례일련번호' 필드 값</p>
      */
-    private Integer precedentSerialNumber;
+    private Integer id;
 
     /**
      * 판례명
      * <p>API 파라미터: LM</p>
      */
-    private String precedentName;
+    private String lm;
 
     @Override
     public String getTarget() {
@@ -53,13 +53,13 @@ public class PrecedentContentRequest implements BaseRequest {
         params.put("type", "JSON");
 
         // 판례일련번호 (필수)
-        if (precedentSerialNumber != null) {
-            params.put("ID", String.valueOf(precedentSerialNumber));
+        if (id != null) {
+            params.put("ID", String.valueOf(id));
         }
 
         // 판례명
-        if (precedentName != null && !precedentName.isBlank()) {
-            params.put("LM", precedentName);
+        if (lm != null && !lm.isBlank()) {
+            params.put("LM", lm);
         }
 
         return params;

@@ -18,12 +18,12 @@ import lombok.Getter;
  * {@code
  * // MST로 조회
  * StatuteContentRequest request = StatuteContentRequest.builder()
- *     .statuteSerialNumber(253527)
+ *     .mst(253527)
  *     .build();
  *
  * // ID로 조회
  * StatuteContentRequest request = StatuteContentRequest.builder()
- *     .lawId(1233)
+ *     .id(1233)
  *     .build();
  *
  * // 법령명으로 조회
@@ -33,8 +33,8 @@ import lombok.Getter;
  *
  * // 특정 조문만 조회
  * StatuteContentRequest request = StatuteContentRequest.builder()
- *     .lawId(1233)
- *     .articleNumber(400) // 제4조만 조회
+ *     .id(1233)
+ *     .jo(400) // 제4조만 조회
  *     .build();
  * }
  * </pre>
@@ -54,7 +54,7 @@ public class StatuteContentRequest implements BaseRequest {
    * ID 또는 MST 중 하나는 반드시 입력
    * </p>
    */
-  private Integer lawId;
+  private Integer id;
 
   /**
    * 법령일련번호 (법령테이블의 lsi_seq 값)
@@ -65,7 +65,7 @@ public class StatuteContentRequest implements BaseRequest {
    * ID 또는 MST 중 하나는 반드시 입력
    * </p>
    */
-  private Integer statuteSerialNumber;
+  private Integer mst;
 
   /**
    * 법령명
@@ -106,7 +106,7 @@ public class StatuteContentRequest implements BaseRequest {
    * 예: 400 → "000400" (제4조), 1002 → "001002" (제10조의2)
    * </p>
    */
-  private Integer articleNumber;
+  private Integer jo;
 
   /**
    * 원문/한글 여부
@@ -134,13 +134,13 @@ public class StatuteContentRequest implements BaseRequest {
     params.put("type", "JSON");
 
     // 법령ID (6자리 zero-padding)
-    if (lawId != null) {
-      params.put("ID", String.format("%06d", lawId));
+    if (id != null) {
+      params.put("ID", String.format("%06d", id));
     }
 
     // 법령일련번호
-    if (statuteSerialNumber != null) {
-      params.put("MST", String.valueOf(statuteSerialNumber));
+    if (mst != null) {
+      params.put("MST", String.valueOf(mst));
     }
 
     // 법령명
@@ -159,8 +159,8 @@ public class StatuteContentRequest implements BaseRequest {
     }
 
     // 조번호 (6자리 zero-padding)
-    if (articleNumber != null) {
-      params.put("JO", String.format("%06d", articleNumber));
+    if (jo != null) {
+      params.put("JO", String.format("%06d", jo));
     }
 
     // 원문/한글 여부
