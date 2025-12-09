@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 // import kr.go.law.administrative.api.AdministrativeApiClient;
 // import kr.go.law.committee.api.CommitteeApiClient;
@@ -118,13 +116,9 @@ public class LawOpenDataClient {
      */
     private static ObjectMapper createDefaultObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+        // 역직렬화 전용 설정 (이 라이브러리는 API 응답만 파싱)
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-
         return mapper;
     }
 

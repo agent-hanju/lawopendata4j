@@ -46,13 +46,11 @@ public class StatuteHistoryRequest implements PageableRequest {
   /** 페이지 번호 (1-based, API 기본값: 1) */
   private Integer page;
 
-  /**
-   * 페이지당 표시 건수
-   * <p>
-   * lsJoHstInf API는 display 파라미터를 지원하지 않음
-   * </p>
-   */
-  private Integer display;
+  /** display 미지원, 20 고정 */
+  @Override
+  public Integer getDisplay() {
+    return 20;
+  }
 
   // ===== 검색 조건 =====
 
@@ -65,7 +63,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * 특정 일자의 개정 이력 조회
    * </p>
    */
-  private Integer revisionDate;
+  private Integer regDt;
 
   /**
    * 조회기간 시작일 (YYYYMMDD 형태의 정수)
@@ -73,7 +71,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * API 파라미터: fromRegDt
    * </p>
    */
-  private Integer revisionDateFrom;
+  private Integer fromRegDt;
 
   /**
    * 조회기간 종료일 (YYYYMMDD 형태의 정수)
@@ -81,7 +79,7 @@ public class StatuteHistoryRequest implements PageableRequest {
    * API 파라미터: toRegDt
    * </p>
    */
-  private Integer revisionDateTo;
+  private Integer toRegDt;
 
   /**
    * 법령ID (6자리, 예: 2132 → "002132")
@@ -128,16 +126,16 @@ public class StatuteHistoryRequest implements PageableRequest {
     // Note: lsJoHstInf API는 display 파라미터 미지원
 
     // 특정 개정일
-    if (revisionDate != null) {
-      params.put("regDt", String.valueOf(revisionDate));
+    if (regDt != null) {
+      params.put("regDt", String.valueOf(regDt));
     }
 
     // 기간 범위
-    if (revisionDateFrom != null) {
-      params.put("fromRegDt", String.valueOf(revisionDateFrom));
+    if (fromRegDt != null) {
+      params.put("fromRegDt", String.valueOf(fromRegDt));
     }
-    if (revisionDateTo != null) {
-      params.put("toRegDt", String.valueOf(revisionDateTo));
+    if (toRegDt != null) {
+      params.put("toRegDt", String.valueOf(toRegDt));
     }
 
     // 법령ID (6자리 zero-padding)

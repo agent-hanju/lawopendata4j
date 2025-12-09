@@ -2,6 +2,7 @@ package kr.go.law.common.client;
 
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +56,7 @@ public abstract class BaseApiClient {
   /**
    * URL 빌드 헬퍼 메서드
    *
-   * @param path API 경로
+   * @param path    API 경로
    * @param request 요청 객체
    * @return 빌드된 HttpUrl
    */
@@ -69,19 +70,19 @@ public abstract class BaseApiClient {
   /**
    * 목록 조회 API 공통 실행 로직
    *
-   * @param <T> 항목 타입
-   * @param request 페이지 가능한 요청
-   * @param path API 경로
-   * @param itemsParser 항목 목록 파싱 함수
+   * @param <T>              항목 타입
+   * @param request          페이지 가능한 요청
+   * @param path             API 경로
+   * @param itemsParser      항목 목록 파싱 함수
    * @param totalCountParser 전체 건수 파싱 함수
-   * @param apiName API 이름 (로깅용)
+   * @param apiName          API 이름 (로깅용)
    * @return ListApiResult
    */
   protected <T> ListApiResult<T> executeListApi(
       PageableRequest request,
       String path,
       Function<JsonNode, java.util.List<T>> itemsParser,
-      Function<JsonNode, Integer> totalCountParser,
+      ToIntFunction<JsonNode> totalCountParser,
       String apiName) {
 
     HttpUrl url = buildUrl(path, request);
@@ -100,10 +101,10 @@ public abstract class BaseApiClient {
             apiName, url, responseString.length());
       }
 
-      return new ListApiResult<>(
+      return ListApiResult.of(
           responseString,
           itemsParser.apply(result),
-          totalCountParser.apply(result),
+          totalCountParser.applyAsInt(result),
           request.getPage() != null ? request.getPage() : 1,
           request.getDisplay() != null ? request.getDisplay() : 20);
 
@@ -116,11 +117,11 @@ public abstract class BaseApiClient {
   /**
    * 본문 조회 API 공통 실행 로직
    *
-   * @param <T> 본문 타입
-   * @param request 요청 객체
-   * @param path API 경로
+   * @param <T>           본문 타입
+   * @param request       요청 객체
+   * @param path          API 경로
    * @param contentParser 본문 파싱 함수
-   * @param apiName API 이름 (로깅용)
+   * @param apiName       API 이름 (로깅용)
    * @return ContentApiResult
    */
   protected <T> ContentApiResult<T> executeContentApi(

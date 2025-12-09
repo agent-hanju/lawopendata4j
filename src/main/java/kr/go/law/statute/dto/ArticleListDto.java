@@ -3,23 +3,22 @@ package kr.go.law.statute.dto;
 import kr.go.law.common.dto.BaseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-/** 목 DTO */
+/**
+ * 조문 개정 이력 DTO (History API 응답용)
+ */
 @SuperBuilder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class Mok extends BaseDto {
-  private String no; // 목번호
-  private String brNo; // 목가지번호
-  private String content; // 목내용
+public class ArticleListDto extends BaseDto {
+  private Integer jo; // 조문번호
+  private String rrCls; // 변경사유
+  private Integer efYd; // 조문시행일
+  private Integer rrClsYd; // 조문개정일
 }

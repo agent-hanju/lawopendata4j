@@ -6,8 +6,11 @@ import kr.go.law.common.client.BaseApiClient;
 import kr.go.law.common.response.ContentApiResult;
 import kr.go.law.common.response.ListApiResult;
 import kr.go.law.config.LawOpenDataProperties;
-import kr.go.law.statute.dto.ArticleDto;
-import kr.go.law.statute.dto.StatuteDto;
+import kr.go.law.statute.dto.StatuteContentDto;
+import kr.go.law.statute.dto.StatuteHistoryDto;
+import kr.go.law.statute.dto.StatuteListDto;
+import kr.go.law.statute.parser.StatuteParserFactory;
+import kr.go.law.statute.request.EfYdLawContentRequest;
 import kr.go.law.statute.request.StatuteContentRequest;
 import kr.go.law.statute.request.StatuteHistoryRequest;
 import kr.go.law.statute.request.StatuteListRequest;
@@ -18,7 +21,7 @@ import okhttp3.OkHttpClient;
 @Slf4j
 public class StatuteApiClient extends BaseApiClient {
 
-  private final StatuteParser parser;
+  private final StatuteParserFactory parserFactory;
 
   /**
    * <strong>권장하지 않음:</strong> 직접 생성보다는 {@link kr.go.law.LawOpenDataClient}를
@@ -30,7 +33,7 @@ public class StatuteApiClient extends BaseApiClient {
    */
   public StatuteApiClient(LawOpenDataProperties properties, ObjectMapper objectMapper, OkHttpClient client) {
     super(properties, objectMapper, client);
-    this.parser = new StatuteParser(objectMapper);
+    this.parserFactory = new StatuteParserFactory(objectMapper);
   }
 
   /**
@@ -55,12 +58,12 @@ public class StatuteApiClient extends BaseApiClient {
    * @param request 법령 목록 조회 요청
    * @return ListApiResult
    */
-  public ListApiResult<StatuteDto> search(StatuteListRequest request) {
+  public ListApiResult<StatuteListDto> search(StatuteListRequest request) {
     return executeListApi(
         request,
         LawOpenDataProperties.LIST_PATH,
-        parser::parseList,
-        result -> parser.parseTotalCount(result, "LawSearch"),
+        parserFactory.getStatuteListParser()::parseList,
+        result -> parserFactory.getStatuteListParser().parseTotalCount(result),
         "Statute List");
   }
 
@@ -75,19 +78,19 @@ public class StatuteApiClient extends BaseApiClient {
    *     .lawId(2132)
    *     .build();
    *
-   * ListApiResult<ArticleDto> result = client.searchHistory(request);
+   * ListApiResult<StatuteHistoryDto> result = client.searchHistory(request);
    * }
    * </pre>
    *
    * @param request 조문 개정 이력 조회 요청
-   * @return ListApiResult&lt;ArticleDto&gt;
+   * @return ListApiResult&lt;StatuteHistoryDto&gt;
    */
-  public ListApiResult<ArticleDto> searchHistory(StatuteHistoryRequest request) {
+  public ListApiResult<StatuteHistoryDto> searchHistory(StatuteHistoryRequest request) {
     return executeListApi(
         request,
         LawOpenDataProperties.LIST_PATH,
-        parser::parseHistory,
-        result -> parser.parseTotalCount(result, "LsJoHst"),
+        parserFactory.getStatuteHistoryParser()::parseList,
+        result -> parserFactory.getStatuteHistoryParser().parseTotalCount(result),
         "Statute History");
   }
 
@@ -98,7 +101,7 @@ public class StatuteApiClient extends BaseApiClient {
    * 사용 예시:
    * {@code
    * StatuteContentRequest request = StatuteContentRequest.builder()
-   *     .statuteSerialNumber(253527)
+   *     .mst(253527)
    *     .build();
    *
    * ContentApiResult result = client.getContent(request);
@@ -108,11 +111,37 @@ public class StatuteApiClient extends BaseApiClient {
    * @param request 법령 본문 조회 요청
    * @return ContentApiResult
    */
-  public ContentApiResult<StatuteDto> getContent(StatuteContentRequest request) {
+  public ContentApiResult<StatuteContentDto> getContent(StatuteContentRequest request) {
     return executeContentApi(
         request,
         LawOpenDataProperties.CONTENT_PATH,
-        parser::parseContent,
+        parserFactory.getStatuteContentParser()::parse,
         "Statute Content");
+  }
+
+  /**
+   * 시행일자 기준 법령 본문 조회
+   *
+   * <pre>
+   * 사용 예시:
+   * {@code
+   * EfYdLawContentRequest request = EfYdLawContentRequest.builder()
+   *     .mst(253527)
+   *     .efYd(20240101)
+   *     .build();
+   *
+   * ContentApiResult result = client.getContentByEfYd(request);
+   * }
+   * </pre>
+   *
+   * @param request 시행일자 기준 법령 본문 조회 요청
+   * @return ContentApiResult
+   */
+  public ContentApiResult<StatuteContentDto> getContentByEfYd(EfYdLawContentRequest request) {
+    return executeContentApi(
+        request,
+        LawOpenDataProperties.CONTENT_PATH,
+        parserFactory.getStatuteContentParser()::parse,
+        "Statute Content (EfYd)");
   }
 }

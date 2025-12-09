@@ -9,26 +9,27 @@ import java.util.Optional;
  */
 public record ContentApiResult<T>(
         String rawData,
-        Optional<T> content) {
+        Optional<T> content,
+        boolean hasError) {
 
     /**
      * 빈 결과 생성
      */
     public static <T> ContentApiResult<T> empty() {
-        return new ContentApiResult<>(null, Optional.empty());
+        return new ContentApiResult<>(null, Optional.empty(), false);
     }
 
     /**
      * 에러 결과 생성 (rawData만 포함)
      */
     public static <T> ContentApiResult<T> error(String rawData) {
-        return new ContentApiResult<>(rawData, Optional.empty());
+        return new ContentApiResult<>(rawData, Optional.empty(), true);
     }
 
     /**
      * 성공 결과 생성
      */
     public static <T> ContentApiResult<T> of(String rawData, T content) {
-        return new ContentApiResult<>(rawData, Optional.ofNullable(content));
+        return new ContentApiResult<>(rawData, Optional.ofNullable(content), false);
     }
 }

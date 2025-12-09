@@ -1,25 +1,23 @@
 package kr.go.law.statute.dto;
 
-import kr.go.law.common.dto.BaseDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
-/** 목 DTO */
-@SuperBuilder
+/** 법령구분 DTO */
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class Mok extends BaseDto {
-  private String no; // 목번호
-  private String brNo; // 목가지번호
-  private String content; // 목내용
+@EqualsAndHashCode
+@ToString
+public class Knd {
+  private String name; // 법종구분명
+  private String code; // 법종구분코드
 }

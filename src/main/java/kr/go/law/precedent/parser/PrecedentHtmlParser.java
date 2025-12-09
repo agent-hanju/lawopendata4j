@@ -1,4 +1,4 @@
-package kr.go.law.precedent.api;
+package kr.go.law.precedent.parser;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -8,13 +8,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import kr.go.law.precedent.dto.PrecedentDto;
+import kr.go.law.precedent.dto.PrecedentContentDto;
 import kr.go.law.util.HtmlParserUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * JSON으로 제공하지 않는 데이터에 대한 fallback용 HTML 파서
+ * law.go.kr HTML fallback 파서
+ *
+ * JSON API에서 데이터를 제공하지 않는 경우 HTML에서 파싱
  */
 @Slf4j
 @UtilityClass
@@ -23,10 +25,10 @@ public class PrecedentHtmlParser {
     /**
      * HTML 콘텐츠에서 판례 정보를 파싱
      */
-    public PrecedentDto parseHtmlContent(String html) throws IOException {
+    public PrecedentContentDto parseHtmlContent(String html) throws IOException {
         try {
             Document doc = Jsoup.parse(html);
-            PrecedentDto dto = PrecedentDto.builder().build();
+            PrecedentContentDto dto = PrecedentContentDto.builder().build();
 
             // Extract metadata from hidden inputs
             String precSeq = extractHiddenInput(doc, "precSeq");
@@ -57,10 +59,8 @@ public class PrecedentHtmlParser {
             dto.setSummary(extractSectionNormalized(bodyText, "판시사항", "판결요지"));
             dto.setDecisionSummary(extractSectionNormalized(bodyText, "판결요지", "참조조문"));
 
-            String refArticlesStr = extractSectionNormalized(bodyText, "참조조문", "참조판례");
-            String refPrecedentsStr = extractSectionNormalized(bodyText, "참조판례", "전문");
-            dto.setArticleReferences(PrecedentParser.parseArticleReferences(refArticlesStr, dto.getDecisionDate()));
-            dto.setPrecedentReferences(PrecedentParser.parsePrecedentReferences(refPrecedentsStr));
+            dto.setArticleReferences(extractSectionNormalized(bodyText, "참조조문", "참조판례"));
+            dto.setPrecedentReferences(extractSectionNormalized(bodyText, "참조판례", "전문"));
 
             // Extract content
             String bodyHtml = doc.body().html();
@@ -86,7 +86,7 @@ public class PrecedentHtmlParser {
         return null;
     }
 
-    private void extractCourtAndDateInfo(String text, PrecedentDto dto) {
+    private void extractCourtAndDateInfo(String text, PrecedentContentDto dto) {
         try {
             int startBracket = text.indexOf('[');
             int endBracket = text.indexOf(']', startBracket);

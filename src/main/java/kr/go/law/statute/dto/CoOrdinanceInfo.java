@@ -10,7 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-/** 목 DTO */
+/** 공동부령정보 DTO */
 @SuperBuilder
 @Getter
 @Setter
@@ -18,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Mok extends BaseDto {
-  private String no; // 목번호
-  private String brNo; // 목가지번호
-  private String content; // 목내용
+public class CoOrdinanceInfo extends BaseDto {
+  private Integer no; // no
+  private Integer ancNo; // 공포번호
+  private Ordinance ordinance; // 공동부령구분 (content, 구분코드)
 }
