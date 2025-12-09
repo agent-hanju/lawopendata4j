@@ -45,6 +45,24 @@ tasks.named('test') {
   }
   systemProperty 'file.encoding', 'UTF-8'
   jvmArgs '-Dfile.encoding=UTF-8', '-Dsun.jnu.encoding=UTF-8'
+
+
+  // 통합 테스트는 기본 test 태스크에서 제외
+  exclude '**/*IntegrationTest*'
+}
+
+// 통합 테스트 전용 태스크
+tasks.register('integrationTest', Test) {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed", "standardOut", "standardError"
+    showStandardStreams = true
+  }
+  systemProperty 'file.encoding', 'UTF-8'
+  jvmArgs '-Dfile.encoding=UTF-8', '-Dsun.jnu.encoding=UTF-8'
+
+  // 통합 테스트만 실행
+  include '**/*IntegrationTest*'
 }
 
 tasks.withType(JavaCompile).configureEach {
