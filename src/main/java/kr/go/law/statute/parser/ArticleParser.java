@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ArticleParser extends BaseParser<ArticleContentDto> {
   private static final String NO = "조문번호";
+  private static final String RR_CLS = "조문제개정유형";
   private static final String EF_YD = "조문시행일자";
   private static final String IS_AMENDED = "조문변경여부";
   private static final String PREV_JO = "조문이동이전";
@@ -36,6 +37,7 @@ public class ArticleParser extends BaseParser<ArticleContentDto> {
 
   private static final Set<String> KNOWN_FIELDS = Set.of(
       NO,
+      RR_CLS,
       EF_YD,
       IS_AMENDED,
       PREV_JO,
@@ -64,6 +66,7 @@ public class ArticleParser extends BaseParser<ArticleContentDto> {
     final BiConsumer<String, JsonNode> onTypeMismatch = createTypeMismatchRecorder(unexpected);
     return ArticleContentDto.builder()
         .no(getInt(node, NO, onTypeMismatch))
+        .rrCls(getString(node, RR_CLS, onTypeMismatch))
         .brNo(getInt(node, BR_NO, onTypeMismatch, true))
         .isAmended(getBoolean(node, IS_AMENDED, onTypeMismatch))
         .prevJo(getInt(node, PREV_JO, onTypeMismatch))

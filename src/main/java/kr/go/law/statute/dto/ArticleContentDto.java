@@ -22,6 +22,7 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class ArticleContentDto extends BaseDto {
   private Integer no; // 조문번호
+  private String rrCls; // 조문재개정유형
   private Integer efYd; // 조문시행일자
   private Boolean isAmended; // 조문변경여부
   private Integer prevJo; // 조문이동이전
